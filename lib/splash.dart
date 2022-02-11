@@ -22,6 +22,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Text("TRIVIA App".toUpperCase(),
+            style: TextStyle(color: Colors.black)),
+        centerTitle: true,
+      ),
 
     body:Center(
       child: Column(

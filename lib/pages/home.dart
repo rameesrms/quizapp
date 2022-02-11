@@ -1,4 +1,4 @@
-import 'dart:ui';
+
 import 'package:quiz/model/questionmodel.dart';
 import 'dart:convert';
 
@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:quiz/screens/result.dart';
 import 'package:http/http.dart' as http;
 
-Map<String, dynamic>? mapResponse;
+
+List<Results> results=const[];
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,36 +19,31 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  PageController? _controller = PageController(initialPage: 0);
+
+  PageController _controller = PageController(initialPage: 0);
   bool isPressed = false;
-  Color isTrue = Colors.green;
-  Color isWrong = Colors.red;
-  Color btnColor = Colors.amber;
   int score = 0;
 
-  late Quiz quiz;
-  List<Results>? results;
+
 
   Future apicall() async {
-    http.Response response;
-    response =
-        await http.get(Uri.parse("https://opentdb.com/api.php?amount=10"));
+   http.Response response;
+    response = await http.get(Uri.parse("https://opentdb.com/api.php?amount=5&category=22&difficulty=medium&type=multiple"));
     if (response.statusCode == 200) {
       setState(() {
-        mapResponse = jsonDecode(response.body) as Map<String, dynamic>;
-        final quiz = Quiz.fromJson(mapResponse!);
-        results = quiz.results;
+        Map<String, dynamic> mapResponse = jsonDecode(response.body) ;
+       Quiz quiz = Quiz.fromJson(mapResponse);
+        results = (quiz?.results)??[];
       });
     }
-    else{ CircularProgressIndicator();
-  }
+
   }
 
   @override
   void initState() {
-    apicall();
 
     super.initState();
+    apicall();
   }
 
   @override
@@ -76,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(results![index].question.toString(),
+                  Text(results[index].question.toString(),
                       style: TextStyle(
                           fontWeight: FontWeight.normal,
                           fontSize: 23,
@@ -88,7 +84,7 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: 26,
                   ),
-                  for (int i = 0; i < results![index].allAnswers!.length; i++)
+                  for (int i = 0; i < results[index].allAnswers.length; i++)
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
                       child: Padding(
@@ -105,17 +101,17 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {
                                     isPressed = true;
                                   });
-                                  if (results![index]
+                                  if (results[index]
                                           .allAnswers![i]
                                           .toString() ==
-                                      results![index]
+                                      results[index]
                                           .correctAnswer
                                           .toString()) {
                                     score++;
                                   }
                                 },
                           child: Text(
-                            results![index].allAnswers![i].toString(),
+                            results[index].allAnswers[i].toString(),
                           ),
                         ),
                       ),
@@ -141,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                                           builder: (context) => Result(score)));
                                 }
                               : () {
-                                  _controller!.nextPage(
+                                  _controller.nextPage(
                                       duration: Duration(milliseconds: 400),
                                       curve: Curves.easeIn);
                                   setState(() {
@@ -158,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               );
             },
-            itemCount: 10),
+            itemCount: results.length),
       ),
     );
   }
